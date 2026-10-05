@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Databases for AI Engineering · Michael Legemah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&family=Raleway:ital,wght@0,500;0,700;0,800;1,500;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #2d2a2e;
+  --bg-deep:   #221f22;
+  --bg-card:   #3a3640;
+  --bg-surface:#332f34;
+  --border:    rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.13);
+  --yellow:  #ffd866;
+  --pink:    #ff6188;
+  --cyan:    #78dce8;
+  --orange:  #fc9867;
+  --green:   #a9dc76;
+  --purple:  #ab9df2;
+  --text:    #fcfcfa;
+  --soft:    #c1b8c8;
+  --muted:   #78dce8;
+  --font-serif: 'Raleway', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono:  'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans:  'Outfit', 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  /* paradigm colors */
+  --d-vec: var(--cyan);
+  --d-graph: var(--purple);
+  --d-rel: var(--yellow);
+  --d-doc: var(--green);
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+:root[data-theme="dark"] { color-scheme: dark; }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 88px); scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+*, *::before, *::after { box-sizing: inherit; }
+
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-sans); font-weight: 300; font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+a { color: var(--cyan); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+/* top bar */
+.topbar { border-bottom: 1px solid var(--border); background: var(--bg-deep); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-family: var(--font-serif); font-weight: 700; letter-spacing: .01em; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--bg-card); border: 1px solid var(--border-md); display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; color: var(--yellow); }
+.topbar .status { font-family: var(--font-mono); font-size: 12.5px; color: var(--green); }
+
+/* hero */
+.hero { padding: 64px 0 40px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
+.kicker { font-family: var(--font-mono); font-size: 13px; color: var(--muted); margin: 0 0 18px; }
+h1 { font-family: var(--font-serif); font-weight: 800; font-size: clamp(38px, 5.6vw, 64px); line-height: 1.04; letter-spacing: -.02em; margin: 0 0 22px; }
+h1 em { font-style: italic; font-weight: 500; color: var(--yellow); }
+.thesis { font-family: var(--font-serif); font-weight: 500; font-style: italic; font-size: clamp(19px, 2vw, 22px); line-height: 1.45; color: var(--text); border-left: 3px solid var(--green); padding-left: 16px; margin: 0 0 22px; max-width: 44ch; }
+.lede { color: var(--soft); max-width: 48ch; margin: 0 0 26px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--soft); padding: 0; margin: 0; list-style: none; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+
+/* hero matrix */
+.matrix { background: var(--bg-deep); border: 1px solid var(--border-md); border-radius: 14px; overflow: hidden; }
+.matrix-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-family: var(--font-mono); font-size: 12.5px; color: var(--soft); }
+.matrix-head i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.matrix-head .fname { margin-left: 10px; }
+.matrix-scroll { overflow-x: auto; }
+table.cov { width: 100%; border-collapse: collapse; min-width: 520px; }
+.cov th, .cov td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+.cov thead th { font-family: var(--font-mono); font-weight: 400; font-size: 12px; color: var(--soft); }
+.cov thead th span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.cov tbody th { text-align: left; font-weight: 400; font-size: 14.5px; color: var(--text); }
+.cov tbody tr:last-child th, .cov tbody tr:last-child td { border-bottom: 0; }
+.cov .dflt { font-family: var(--font-mono); font-size: 12px; color: var(--orange); white-space: nowrap; text-align: left; }
+.cell { display: inline-block; width: 26px; height: 14px; border-radius: 4px; }
+.cell.s { background: var(--c); }
+.cell.p { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); box-shadow: inset 0 0 0 1.5px var(--c); }
+.cell.g { box-shadow: inset 0 0 0 1.5px var(--c); opacity: .55; }
+.matrix-foot { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 16px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--soft); }
+.matrix-foot .cell { width: 18px; height: 10px; vertical-align: middle; margin-right: 6px; --c: var(--soft); }
+
+/* reminders */
+.reminders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 8px 0 40px; }
+.reminder { border-left: 3px solid var(--c, var(--purple)); background: var(--bg-surface); border-radius: 0 10px 10px 0; padding: 16px 20px; }
+.reminder h2 { font-family: var(--font-serif); font-size: 17px; font-weight: 700; margin: 0 0 4px; color: var(--c, var(--purple)); }
+.reminder p { margin: 0; color: var(--soft); font-size: 15.5px; }
+
+/* toolbar */
+.toolbar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-block: 1px solid var(--border); padding-top: env(safe-area-inset-top, 0px); top: env(safe-area-inset-top, 0px); }
+.toolbar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-block: 12px; }
+.toolbar input[type="search"] { flex: 1 1 220px; min-width: 0; background: var(--bg-deep); border: 1px solid var(--border-md); color: var(--text); border-radius: 8px; padding: 9px 12px; font: inherit; font-size: 15px; }
+.toolbar input::placeholder { color: #8f8599; }
+.btn { background: var(--bg-card); color: var(--text); border: 1px solid var(--border-md); border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 14.5px; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn:hover { border-color: var(--soft); }
+.chip { background: transparent; color: var(--soft); border: 1px solid var(--border-md); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; }
+.chip[aria-pressed="true"] { color: var(--bg-deep); background: var(--c); border-color: var(--c); font-weight: 500; }
+.chip .dot { background: var(--c); }
+.chip[aria-pressed="true"] .dot { background: var(--bg-deep); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips-label { font-size: 13.5px; color: var(--soft); }
+
+/* section headings */
+.sec { padding: 20px 0 8px; }
+.sec h2 { font-family: var(--font-serif); font-weight: 800; font-size: 28px; margin: 0 0 6px; letter-spacing: -.01em; }
+.sec > p, .sec .sub { color: var(--soft); margin: 0 0 20px; max-width: 70ch; }
+
+/* paradigm cards */
+.stories { padding: 36px 0 24px; display: grid; gap: 18px; }
+.story { background: var(--bg-surface); border: 1px solid var(--border); border-left: 3px solid var(--c); border-radius: 14px; }
+.story[open] { border-color: var(--border-md); border-left-color: var(--c); }
+.story > summary { list-style: none; cursor: pointer; padding: 22px 24px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 20px; }
+.story > summary::-webkit-details-marker { display: none; }
+.story-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-family: var(--font-mono); font-size: 12.5px; color: var(--c); }
+.story-meta .era { color: var(--soft); }
+.story h3 { font-family: var(--font-serif); font-weight: 700; font-size: clamp(22px, 2.6vw, 27px); line-height: 1.2; margin: 0; letter-spacing: -.005em; }
+.toggle { align-self: start; font-family: var(--font-mono); font-size: 12.5px; color: var(--soft); border: 1px solid var(--border-md); border-radius: 6px; padding: 3px 9px; white-space: nowrap; }
+.story[open] .toggle .o { display: none; }
+.story:not([open]) .toggle .c { display: none; }
+.hook { grid-column: 1 / -1; margin: 6px 0 0; font-size: 18px; line-height: 1.55; color: var(--text); max-width: 74ch; font-weight: 400; }
+.hook::before { content: "“"; color: var(--yellow); font-family: var(--font-serif); font-weight: 800; margin-right: 2px; }
+.hook::after { content: "”"; color: var(--yellow); font-family: var(--font-serif); font-weight: 800; margin-left: 1px; }
+.pr { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); margin-top: 10px; border: 1px solid var(--border-md); border-radius: 10px; overflow: hidden; }
+.pr > div { padding: 12px 16px; }
+.pr > div + div { border-left: 1px solid var(--border-md); }
+.pr .lbl { display: block; font-family: var(--font-mono); font-size: 12px; margin-bottom: 3px; }
+.pr .prob { background: rgba(255,97,136,.07); } .pr .prob .lbl { color: var(--pink); }
+.pr .res { background: rgba(169,220,118,.07); } .pr .res .lbl { color: var(--green); }
+.pr p { margin: 0; font-size: 15.5px; line-height: 1.5; color: var(--text); font-weight: 400; }
+@media (max-width: 640px) { .pr { grid-template-columns: 1fr; } .pr > div + div { border-left: 0; border-top: 1px solid var(--border-md); } }
+
+.story-body { padding: 4px 24px 26px; display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 28px; border-top: 1px solid var(--border); }
+.beats { padding-top: 20px; min-width: 0; }
+.beat { margin: 0 0 24px; max-width: 74ch; }
+.beat h4 { font-family: var(--font-serif); font-weight: 700; font-size: 16px; margin: 0 0 6px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.beat h4 .q { font-family: var(--font-mono); font-weight: 400; font-size: 12px; color: var(--muted); }
+.beat p { margin: 0 0 10px; color: var(--soft); }
+.beat strong, .beat b { color: var(--text); font-weight: 500; }
+.beat code, td code, .signal code, .asks code { font-family: var(--font-mono); font-size: .86em; color: var(--yellow); background: var(--bg-deep); border-radius: 4px; padding: 1px 5px; }
+.beat ul.pts { margin: 0 0 10px; padding-left: 20px; color: var(--soft); }
+.beat ul.pts li + li { margin-top: 5px; }
+
+/* head-to-head tables */
+.h2h-wrap { overflow-x: auto; margin: 6px 0 10px; border: 1px solid var(--border-md); border-radius: 10px; background: var(--bg-deep); }
+table.h2h { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 14.5px; }
+.h2h th, .h2h td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--soft); }
+.h2h thead th { font-family: var(--font-mono); font-weight: 500; font-size: 12px; color: var(--c, var(--text)); white-space: nowrap; }
+.h2h tbody th { font-family: var(--font-mono); font-weight: 400; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.h2h tbody tr:last-child th, .h2h tbody tr:last-child td { border-bottom: 0; }
+.h2h td strong { color: var(--text); font-weight: 500; }
+
+/* code */
+pre.code { margin: 8px 0 12px; background: var(--bg-deep); border: 1px solid var(--border-md); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: var(--soft); }
+pre.code .k { color: var(--pink); } pre.code .f { color: var(--green); } pre.code .s { color: var(--yellow); } pre.code .c { color: #8f8599; font-style: italic; } pre.code .n { color: var(--cyan); } pre.code .o { color: var(--orange); }
+.codecap { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+
+/* side rail */
+aside.signals { padding-top: 20px; min-width: 0; }
+.signals h4 { font-family: var(--font-serif); font-weight: 700; font-size: 16px; margin: 0 0 12px; }
+.signal { border-left: 3px solid var(--c); padding: 2px 0 2px 12px; margin: 0 0 14px; }
+.signal .k { font-family: var(--font-mono); font-size: 12px; color: var(--c); display: block; margin-bottom: 2px; }
+.signal p { margin: 0; font-size: 15px; color: var(--text); line-height: 1.5; }
+.asks { margin-top: 18px; background: var(--bg-deep); border-radius: 10px; padding: 14px 16px; }
+.asks h5 { margin: 0 0 8px; font-family: var(--font-mono); font-weight: 400; font-size: 12px; color: var(--muted); }
+.asks ul { margin: 0; padding-left: 18px; color: var(--soft); font-size: 14.5px; line-height: 1.5; }
+.asks li + li { margin-top: 6px; }
+.asks.avoid h5 { color: var(--pink); }
+.stack { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+.stack span { font-family: var(--font-mono); font-size: 11.5px; color: var(--soft); background: var(--bg-card); border-radius: 5px; padding: 3px 7px; }
+
+/* diagrams */
+.diagram { background: var(--bg-deep); border: 1px solid var(--border-md); border-radius: 14px; margin: 0 0 18px; overflow: hidden; }
+.diagram .matrix-head { background: transparent; }
+.diagram-scroll { overflow-x: auto; padding: 8px 12px 14px; }
+.diagram svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.diagram figcaption { padding: 12px 18px 16px; border-top: 1px solid var(--border); color: var(--soft); font-size: 15px; line-height: 1.55; }
+.diagram figcaption strong { color: var(--text); font-weight: 500; }
+.nd rect { fill: var(--bg-surface); stroke: var(--c, var(--soft)); stroke-width: 1.5; }
+.nd text { text-anchor: middle; }
+.nd .t { fill: var(--text); font-family: var(--font-sans); font-weight: 500; font-size: 14px; }
+.nd .s { fill: var(--soft); font-family: var(--font-mono); font-size: 10.5px; }
+.nd.q rect { fill: var(--bg-card); }
+.ln { stroke: var(--soft); stroke-width: 1.4; fill: none; }
+.ln.dash { stroke-dasharray: 5 4; stroke: var(--c, var(--soft)); }
+.lane { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.lbl-s { font-family: var(--font-mono); font-size: 11px; fill: var(--orange); }
+.lbl-y { font-family: var(--font-mono); font-size: 11px; fill: var(--green); text-anchor: middle; }
+.lbl-n { font-family: var(--font-mono); font-size: 11px; fill: var(--pink); text-anchor: middle; }
+.arrowhead { fill: var(--soft); }
+
+/* decision matrix */
+.dm-wrap { overflow-x: auto; border: 1px solid var(--border-md); border-radius: 14px; background: var(--bg-deep); margin: 0 0 18px; }
+table.dm { width: 100%; border-collapse: collapse; min-width: 1020px; font-size: 14.5px; }
+.dm th, .dm td { padding: 14px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); color: var(--soft); line-height: 1.5; }
+.dm thead th { font-family: var(--font-mono); font-weight: 500; font-size: 12px; color: var(--muted); background: var(--bg-surface); position: sticky; top: 0; }
+.dm tbody th { font-family: var(--font-serif); font-weight: 700; font-size: 15.5px; color: var(--c); border-left: 3px solid var(--c); min-width: 150px; }
+.dm tbody th small { display: block; font-family: var(--font-mono); font-weight: 400; font-size: 11px; color: var(--soft); margin-top: 3px; }
+.dm tbody tr:last-child th, .dm tbody tr:last-child td { border-bottom: 0; }
+.dm td strong { color: var(--text); font-weight: 500; }
+.dm td.avoid { background: rgba(255,97,136,.05); }
+
+/* ops grid */
+.ops { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.pillar { background: var(--bg-surface); border-top: 3px solid var(--c); border-radius: 0 0 10px 10px; padding: 16px 18px; }
+.pillar b { font-family: var(--font-serif); font-weight: 700; color: var(--c); display: block; margin-bottom: 4px; }
+.pillar span { color: var(--soft); font-size: 14.5px; line-height: 1.5; display: block; }
+.pillar code { font-family: var(--font-mono); font-size: .86em; color: var(--yellow); background: var(--bg-deep); border-radius: 4px; padding: 1px 5px; }
+
+.sizing { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin: 0 0 18px; }
+.sk-stat { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; }
+.sk-stat b { display: block; font-family: var(--font-mono); font-weight: 500; font-size: 22px; color: var(--c, var(--text)); line-height: 1.3; }
+.sk-stat span { font-size: 13.5px; color: var(--soft); }
+
+.empty { display: none; text-align: center; color: var(--soft); padding: 32px; border: 1px dashed var(--border-md); border-radius: 14px; }
+.est { font-family: var(--font-mono); font-size: .74em; color: var(--purple); border: 1px solid rgba(171,157,242,.5); border-radius: 4px; padding: 0 5px; margin-left: 4px; vertical-align: .1em; white-space: nowrap; }
+
+footer { border-top: 1px solid var(--border); background: var(--bg-deep); margin-top: 48px; }
+footer .wrap { padding-block: 22px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--soft); }
+footer a { color: var(--soft); }
+.page-pad { padding-bottom: 8px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .cov .cell { animation: fill .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i, 0) * 40ms + 200ms); }
+  @keyframes fill { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); } }
+}
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 32px; }
+  .story-body { grid-template-columns: 1fr; gap: 0; }
+  .reminders { grid-template-columns: 1fr; }
+  .ops { grid-template-columns: 1fr; }
+  .sizing { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .wrap { padding: 0 16px; }
+  .hero { padding-top: 40px; }
+  .story > summary { padding: 18px; }
+  .story-body { padding: 4px 18px 22px; }
+  .topbar .status { display: none; }
+}
+@media print {
+  .toolbar, .toggle { display: none; }
+  .story-body { display: grid !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="https://mleg.tech" target="_blank" rel="noopener"><span class="brand-mark">ML</span>Michael Legemah</a>
+    <span class="status">&gt;&gt;&gt; storage = polyglot</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kicker">databases_for_ai.md · ai engineering cheat sheet</p>
+      <h1>Pick the store by the <em>question you ask</em></h1>
+      <p class="thesis">An AI system asks four different kinds of questions: what is similar, what is connected, what is true right now, and what happened. Each one has a database built for it.</p>
+      <p class="lede">Vector, graph, relational and document stores, with when and why to reach for each, the tradeoffs that bite in production, and how they plug into RAG, GraphRAG and agent memory. Open a card to go deep; the matrix on the right is the one-glance answer.</p>
+      <ul class="legend">
+        <li><span class="dot" style="background:var(--d-vec)"></span>Vector</li>
+        <li><span class="dot" style="background:var(--d-graph)"></span>Graph</li>
+        <li><span class="dot" style="background:var(--d-rel)"></span>Relational</li>
+        <li><span class="dot" style="background:var(--d-doc)"></span>Document / KV</li>
+      </ul>
+    </div>
+
+    <div class="matrix" aria-label="Workload fit by database paradigm">
+      <div class="matrix-head">
+        <i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i>
+        <span class="fname">workload_fit.py</span>
+      </div>
+      <div class="matrix-scroll">
+        <table class="cov">
+          <thead>
+            <tr>
+              <th scope="col" style="text-align:left">AI workload</th>
+              <th scope="col"><span style="background:var(--d-vec)"></span>Vec</th>
+              <th scope="col"><span style="background:var(--d-graph)"></span>Graph</th>
+              <th scope="col"><span style="background:var(--d-rel)"></span>Rel</th>
+              <th scope="col"><span style="background:var(--d-doc)"></span>Doc</th>
+              <th scope="col" style="text-align:left">Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Semantic search / RAG recall</th>
+              <td><span class="cell s" style="--c:var(--d-vec);--i:0"></span></td><td><span class="cell p" style="--c:var(--d-graph);--i:1"></span></td><td><span class="cell p" style="--c:var(--d-rel);--i:2"></span></td><td><span class="cell p" style="--c:var(--d-doc);--i:3"></span></td><td class="dflt">pgvector → Pinecone</td></tr>
+            <tr><th scope="row">Multi-hop reasoning</th>
+              <td><span class="cell g" style="--c:var(--d-vec);--i:4"></span></td><td><span class="cell s" style="--c:var(--d-graph);--i:5"></span></td><td><span class="cell p" style="--c:var(--d-rel);--i:6"></span></td><td><span class="cell g" style="--c:var(--d-doc);--i:7"></span></td><td class="dflt">Neo4j / Neptune</td></tr>
+            <tr><th scope="row">Transactions, audit, ACLs</th>
+              <td><span class="cell g" style="--c:var(--d-vec);--i:8"></span></td><td><span class="cell p" style="--c:var(--d-graph);--i:9"></span></td><td><span class="cell s" style="--c:var(--d-rel);--i:10"></span></td><td><span class="cell p" style="--c:var(--d-doc);--i:11"></span></td><td class="dflt">PostgreSQL</td></tr>
+            <tr><th scope="row">Agent state &amp; memory</th>
+              <td><span class="cell p" style="--c:var(--d-vec);--i:12"></span></td><td><span class="cell p" style="--c:var(--d-graph);--i:13"></span></td><td><span class="cell s" style="--c:var(--d-rel);--i:14"></span></td><td><span class="cell s" style="--c:var(--d-doc);--i:15"></span></td><td class="dflt">Postgres + Doc log</td></tr>
+            <tr><th scope="row">Raw payloads, LLM I/O logs</th>
+              <td><span class="cell g" style="--c:var(--d-vec);--i:16"></span></td><td><span class="cell g" style="--c:var(--d-graph);--i:17"></span></td><td><span class="cell p" style="--c:var(--d-rel);--i:18"></span></td><td><span class="cell s" style="--c:var(--d-doc);--i:19"></span></td><td class="dflt">DynamoDB / MongoDB</td></tr>
+            <tr><th scope="row">Edge &amp; local apps</th>
+              <td><span class="cell g" style="--c:var(--d-vec);--i:20"></span></td><td><span class="cell g" style="--c:var(--d-graph);--i:21"></span></td><td><span class="cell s" style="--c:var(--d-rel);--i:22"></span></td><td><span class="cell g" style="--c:var(--d-doc);--i:23"></span></td><td class="dflt">SQLite (+ vec ext.)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="matrix-foot">
+        <span><span class="cell s"></span>Native fit</span>
+        <span><span class="cell p"></span>Works, with caveats</span>
+        <span><span class="cell g"></span>Wrong tool</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="reminders">
+    <div class="reminder" style="--c:var(--yellow)">
+      <h2>Start with Postgres, graduate on evidence</h2>
+      <p>One database with pgvector, JSONB and full-text search covers most products until a measured limit says otherwise. Add a specialist store when a number forces it, not when a diagram looks cleaner.</p>
+    </div>
+    <div class="reminder" style="--c:var(--cyan)">
+      <h2>The vector index is a cache, not the record</h2>
+      <p>Embeddings are derived data. Keep the source text and the embedding model version in a system of record so you can rebuild the index when the model changes.</p>
+    </div>
+    <div class="reminder" style="--c:var(--pink)">
+      <h2>Filter in the database, not after the LLM</h2>
+      <p>Tenant, ACL and freshness filters belong in the retrieval query. Post-filtering top-k results quietly drops recall and risks leaking documents the user should never see.</p>
+    </div>
+  </div>
+</div>
+
+<nav class="toolbar" aria-label="Filter paradigms">
+  <div class="wrap">
+    <input type="search" id="q" placeholder="Search, e.g. HNSW, checkpoint, GraphRAG, hot partition" aria-label="Search paradigms">
+    <span class="chips-label">Paradigm</span>
+    <div class="chips" role="group" aria-label="Filter by paradigm">
+      <button class="chip" data-db="vec" style="--c:var(--d-vec)" aria-pressed="false"><span class="dot"></span>Vector</button>
+      <button class="chip" data-db="graph" style="--c:var(--d-graph)" aria-pressed="false"><span class="dot"></span>Graph</button>
+      <button class="chip" data-db="rel" style="--c:var(--d-rel)" aria-pressed="false"><span class="dot"></span>Relational</button>
+      <button class="chip" data-db="doc" style="--c:var(--d-doc)" aria-pressed="false"><span class="dot"></span>Document</button>
+    </div>
+    <button class="btn" id="expandBtn">Expand all</button>
+    <a class="btn" href="#matrix">Decision matrix</a>
+  </div>
+</nav>
+
+<main class="wrap">
+<div class="stories" id="stories">
+
+<!-- ============ 1. VECTOR ============ -->
+<details class="story" id="vector" data-db="vec" style="--c:var(--d-vec)">
+  <summary>
+    <div class="story-meta"><span>1 · Vector databases</span><span class="era">Pinecone · Weaviate · pgvector</span></div>
+    <h3>Find what means the same thing, not what says the same words</h3>
+    <span class="toggle"><span class="o">Open</span><span class="c">Close</span></span>
+    <p class="hook">A vector database stores embeddings and answers one question fast: which stored items are closest to this query vector? That's the retrieval step behind RAG, semantic memory, deduplication and recommendations.</p>
+    <div class="pr"><div class="prob"><span class="lbl">Problem it solves</span><p>Keyword search misses paraphrases and synonyms, and brute-force comparison against millions of vectors is too slow to serve.</p></div><div class="res"><span class="lbl">What you get</span><p>Approximate nearest-neighbour search in tens of milliseconds, combined with metadata filters and, in the better engines, keyword scoring.</p></div></div>
+  </summary>
+  <div class="story-body">
+    <div class="beats">
+      <div class="beat">
+        <h4>Core paradigm <span class="q">how embeddings are indexed and queried</span></h4>
+        <p>An embedding model maps text, images or audio to a vector of 384 to 3,072 floats, so that similar meaning lands close together. Exact search compares the query against every vector. That doesn't scale, so engines build an <strong>approximate nearest-neighbour (ANN)</strong> index and trade a little recall for a lot of speed.</p>
+        <ul class="pts">
+          <li><strong>HNSW</strong> is a layered proximity graph. Best recall and latency, but it lives in RAM and costs more to build. Knobs: <code>M</code> (links per node), <code>ef_construction</code> (build effort), <code>ef_search</code> (query effort).</li>
+          <li><strong>IVF / IVFFlat</strong> clusters vectors and probes the nearest clusters. Cheaper to build, needs training data, recall depends on <code>nprobe</code>.</li>
+          <li><strong>DiskANN-style</strong> indexes keep the graph on SSD with a compressed copy in memory, which makes very large corpora affordable.</li>
+          <li><strong>Quantization</strong> (scalar, product, binary) shrinks vectors 4 to 32x. Pair it with a rescore against full-precision vectors to recover recall.</li>
+          <li><strong>Distance metric</strong> must match the embedding model: cosine for most text models, inner product for normalised vectors, L2 for some vision models.</li>
+        </ul>
+        <p><strong>Hybrid search</strong> blends dense (semantic) and sparse (BM25 keyword) scores, usually by reciprocal rank fusion. It matters because embeddings are weak at exact tokens such as part numbers, error codes and names. Add a cross-encoder <strong>reranker</strong> on the top 50 to 100 candidates and quality jumps again.</p>
+      </div>
+
+      <div class="beat">
+        <h4>Head to head <span class="q">the three you'll be asked about</span></h4>
+        <div class="h2h-wrap"><table class="h2h">
+          <thead><tr><th></th><th style="--c:var(--cyan)">Pinecone</th><th style="--c:var(--cyan)">Weaviate</th><th style="--c:var(--cyan)">pgvector</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Model</th><td>Managed SaaS, closed source</td><td>Open source; self-host or Weaviate Cloud</td><td>Open-source Postgres extension</td></tr>
+            <tr><th scope="row">Best at</th><td><strong>Zero-ops scale.</strong> No clusters, shards or index tuning to run</td><td><strong>Native hybrid search</strong>, rich schemas, multi-modal, multi-tenancy</td><td><strong>One database.</strong> Vectors beside rows, joined and transacted together</td></tr>
+            <tr><th scope="row">Index</th><td>Proprietary ANN; Serverless or Pod-based</td><td>HNSW, flat, or dynamic; PQ / BQ / SQ compression</td><td>HNSW or IVFFlat; <code>halfvec</code> and binary quantization</td></tr>
+            <tr><th scope="row">Hybrid</th><td>Sparse + dense vectors, then rerank</td><td>BM25 + vector in one query, tunable <code>alpha</code> fusion</td><td>Combine with <code>tsvector</code> FTS or a BM25 extension in SQL</td></tr>
+            <tr><th scope="row">Filtering</th><td>Metadata filters, namespaces per tenant</td><td>Filters, per-tenant shards for multi-tenancy</td><td>Any SQL <code>WHERE</code>, joins, row-level security</td></tr>
+            <tr><th scope="row">Ops burden</th><td>Lowest</td><td>Medium (low on Cloud)</td><td>Tied to your Postgres: memory, vacuum, index builds</td></tr>
+            <tr><th scope="row">Watch for</th><td>Cost at high query volume; vendor lock-in; no joins</td><td>RAM sizing for HNSW; cluster upgrades when self-hosted</td><td>Competes with OLTP for memory; practical ceiling is lower</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="beat">
+        <h4>Pinecone: Serverless vs. Pod-based <span class="q">index types</span></h4>
+        <p><strong>Serverless</strong> separates storage from compute. You pay for storage plus read and write units, capacity scales automatically, and idle indexes cost little. It's the default for new workloads, spiky traffic and multi-tenant apps (one namespace per tenant). <strong>Pod-based</strong> is the older provisioned model: you choose pod type and size (storage-optimised <code>s1</code>, performance-optimised <code>p1</code> / <code>p2</code>) and add replicas for throughput. It gives predictable latency and cost under steady, heavy load, but you size and resize it yourself. Treat Pod-based as legacy unless you have a specific capacity reason, and confirm current plan limits in Pinecone's docs before committing.</p>
+      </div>
+
+      <div class="beat">
+        <h4>Sizing in your head <span class="q">raw float32 vectors, before index overhead</span></h4>
+        <div class="sizing">
+          <div class="sk-stat" style="--c:var(--cyan)"><b>6 GB</b><span>1M vectors × 1,536 dims</span></div>
+          <div class="sk-stat" style="--c:var(--cyan)"><b>61 GB</b><span>10M × 1,536</span></div>
+          <div class="sk-stat" style="--c:var(--cyan)"><b>614 GB</b><span>100M × 1,536</span></div>
+          <div class="sk-stat" style="--c:var(--green)"><b>~4×</b><span>cut with scalar quantization</span></div>
+        </div>
+        <p>HNSW adds graph links on top, so budget roughly 1.5 to 2x the raw size in RAM. This arithmetic is what decides pgvector versus a dedicated engine: it's a memory problem long before it's a feature problem.</p>
+      </div>
+
+      <div class="beat">
+        <h4>pgvector in practice <span class="q">the pattern worth memorising</span></h4>
+<pre class="code"><span class="c">-- one table, relational columns and the embedding together</span>
+<span class="k">CREATE EXTENSION</span> vector;
+<span class="k">CREATE TABLE</span> chunks (
+  id          <span class="n">bigserial</span> <span class="k">PRIMARY KEY</span>,
+  tenant_id   <span class="n">uuid</span>   <span class="k">NOT NULL</span>,
+  doc_id      <span class="n">uuid</span>   <span class="k">NOT NULL</span>,
+  body        <span class="n">text</span>,
+  embed_model <span class="n">text</span>   <span class="k">NOT NULL</span>,   <span class="c">-- rebuild trigger when this changes</span>
+  embedding   <span class="n">vector</span>(<span class="o">1536</span>)
+);
+<span class="k">CREATE INDEX ON</span> chunks <span class="k">USING</span> hnsw (embedding vector_cosine_ops)
+  <span class="k">WITH</span> (m = <span class="o">16</span>, ef_construction = <span class="o">64</span>);
+
+<span class="k">SET</span> hnsw.ef_search = <span class="o">80</span>;               <span class="c">-- recall vs. latency, per session</span>
+<span class="k">SELECT</span> id, body, embedding &lt;=&gt; $1 <span class="k">AS</span> dist
+<span class="k">FROM</span> chunks <span class="k">WHERE</span> tenant_id = $2
+<span class="k">ORDER BY</span> embedding &lt;=&gt; $1 <span class="k">LIMIT</span> <span class="o">20</span>;</pre>
+        <p>The pitfall is filtered search: an approximate index scans the nearest neighbours first and then applies <code>WHERE</code>, so a selective filter can return fewer rows than asked. Recent pgvector versions add iterative index scans to fix this; for hard multi-tenancy also consider partitioning by tenant. Indexes cap at 2,000 dimensions for <code>vector</code> and 4,000 for <code>halfvec</code>, so use a shorter embedding or <code>halfvec</code> for the larger models.</p>
+      </div>
+
+      <div class="beat">
+        <h4>When &amp; why to use which <span class="q">the checklist</span></h4>
+        <p><strong>Choose a pure-play vector DB (Pinecone, Weaviate) when:</strong></p>
+        <ul class="pts">
+          <li>You expect <strong>tens of millions of vectors or more</strong>, or growth you can't predict.</li>
+          <li>Retrieval has a hard <strong>p99 latency SLA</strong> and heavy query concurrency that shouldn't share a box with your OLTP traffic.</li>
+          <li>You want <strong>no infrastructure work</strong> (Pinecone) or <strong>native hybrid search and multi-modal</strong> out of the box (Weaviate).</li>
+          <li>Vector search is the product, and a dedicated team owns relevance tuning.</li>
+        </ul>
+        <p><strong>Choose pgvector (or Aurora / Neon with pgvector) when:</strong></p>
+        <ul class="pts">
+          <li>Your corpus is <strong>under roughly 10 to 50 million vectors</strong> and fits in memory beside your data.</li>
+          <li>You need <strong>joins, transactions and row-level security</strong> in the same query as similarity (permission-aware RAG).</li>
+          <li><strong>Operational simplicity</strong> wins: one backup, one failover, one access-control model, one bill.</li>
+          <li>You're prototyping. You can always move the vectors out later; you can't easily un-split a system.</li>
+        </ul>
+      </div>
+    </div>
+
+    <aside class="signals">
+      <h4>Quick read</h4>
+      <div class="signal" style="--c:var(--cyan)"><span class="k">Reach for it when</span><p>The question is "what's similar to this?" and exact matching won't do.</p></div>
+      <div class="signal" style="--c:var(--green)"><span class="k">Pipeline role</span><p>The retrieval layer in RAG, the semantic tier of agent memory, and the seed step in GraphRAG.</p></div>
+      <div class="signal" style="--c:var(--pink)"><span class="k">Biggest trap</span><p>Treating it as the source of truth. Without the source text and model version stored elsewhere, a model upgrade means starting over.</p></div>
+      <div class="asks">
+        <h5>Reach for this when they ask</h5>
+        <ul>
+          <li>Why is retrieval missing exact IDs or product codes?</li>
+          <li>pgvector or Pinecone for this workload?</li>
+          <li>How do you keep users from seeing each other's documents?</li>
+          <li>How do you handle an embedding-model upgrade?</li>
+        </ul>
+      </div>
+      <div class="asks avoid">
+        <h5>Avoid when</h5>
+        <ul>
+          <li>You need exact lookups, joins or transactions as the main access pattern.</li>
+          <li>The corpus is small enough (about 100k chunks) for brute-force search.</li>
+        </ul>
+      </div>
+      <div class="stack"><span>Pinecone</span><span>Weaviate</span><span>pgvector</span><span>HNSW</span><span>IVFFlat</span><span>DiskANN</span><span>BM25</span><span>RRF</span><span>reranker</span><span>quantization</span></div>
+    </aside>
+  </div>
+</details>
+
+<!-- ============ 2. GRAPH ============ -->
+<details class="story" id="graph" data-db="graph" style="--c:var(--d-graph)">
+  <summary>
+    <div class="story-meta"><span>2 · Graph databases</span><span class="era">Neo4j · Amazon Neptune</span></div>
+    <h3>When the answer lives in the connections, not the documents</h3>
+    <span class="toggle"><span class="o">Open</span><span class="c">Close</span></span>
+    <p class="hook">Vector search returns passages that sound relevant. A graph returns the explicit entities and relationships those passages describe, so an LLM can reason across several hops with facts it can cite.</p>
+    <div class="pr"><div class="prob"><span class="lbl">Problem it solves</span><p>Questions like "which suppliers share a risky subcomponent?" need joins across many relationships. Top-k chunks rarely contain the whole chain.</p></div><div class="res"><span class="lbl">What you get</span><p>Traversal that costs the same on a billion nodes as on a thousand, plus structured provenance for every claim the model makes.</p></div></div>
+  </summary>
+  <div class="story-body">
+    <div class="beats">
+      <div class="beat">
+        <h4>Core paradigm <span class="q">Property Graph vs. RDF</span></h4>
+        <p>A <strong>Property Graph</strong> has nodes (entities, with labels), edges (typed, directed relationships) and key-value properties on both: <code>(:Person {name})-[:WORKS_AT {since}]-&gt;(:Company)</code>. It's flexible and developer-friendly, queried with Cypher, openCypher or Gremlin.</p>
+        <p><strong>RDF</strong> models everything as subject-predicate-object triples with global URIs, queried with SPARQL. It's built for ontologies, formal reasoning and merging datasets from different sources. Choose it when interoperability and standards matter; choose Property Graph when the team is building an application.</p>
+        <p>Graphs are "index-free adjacency" stores in the native engines: each node holds direct pointers to its neighbours, so a hop doesn't scan a table. In a relational database the same traversal is a chain of joins whose cost grows with every hop.</p>
+      </div>
+
+      <div class="beat">
+        <h4>Head to head <span class="q">Neo4j vs. Amazon Neptune</span></h4>
+        <div class="h2h-wrap"><table class="h2h">
+          <thead><tr><th></th><th style="--c:var(--purple)">Neo4j</th><th style="--c:var(--purple)">Amazon Neptune</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Model</th><td>Native property graph</td><td>Property graph and RDF, both in the managed service</td></tr>
+            <tr><th scope="row">Query languages</th><td><strong>Cypher</strong> (the basis of GQL)</td><td>Gremlin, openCypher and SPARQL</td></tr>
+            <tr><th scope="row">Best at</th><td><strong>Deep-hop queries</strong> and a deep <strong>Graph Data Science</strong> library: PageRank, community detection, node embeddings, similarity</td><td><strong>AWS-native enterprise fit</strong>: IAM, VPC, KMS, multi-AZ, read replicas, managed backups</td></tr>
+            <tr><th scope="row">Vector support</th><td>Native vector indexes on node properties</td><td>Neptune Analytics adds vector search and GraphRAG-oriented analytics</td></tr>
+            <tr><th scope="row">Deployment</th><td>Aura (managed), self-managed, any cloud</td><td>AWS only</td></tr>
+            <tr><th scope="row">Ecosystem</th><td>Broad GraphRAG tooling: LangChain, LlamaIndex, GraphRAG integrations</td><td>Tight with Bedrock Knowledge Bases, SageMaker, Glue</td></tr>
+            <tr><th scope="row">Watch for</th><td>Sharding a single huge graph is hard; licensing and cost for clustered enterprise</td><td>Choose your query language early; skills don't transfer between Gremlin, SPARQL and openCypher</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="beat">
+        <h4>Why graphs matter for AI <span class="q">knowledge graphs and GraphRAG</span></h4>
+        <p>Plain vector RAG has four recurring failure modes. GraphRAG addresses each by giving the LLM structure along with text:</p>
+        <ul class="pts">
+          <li><strong>Multi-hop questions.</strong> The answer spans documents that never mention each other. A graph walks the path explicitly: <em>Drug → targets → Pathway → linked adverse events</em>.</li>
+          <li><strong>Global questions.</strong> "What are the main themes across this corpus?" has no matching chunk. Community detection (Leiden) over the entity graph, with LLM-written community summaries, answers it.</li>
+          <li><strong>Ambiguous entities.</strong> "Apple" the company and the fruit embed close together. Resolved nodes with typed edges disambiguate.</li>
+          <li><strong>Explainability.</strong> Each answer can cite the exact nodes, edges and source chunks it used. That matters for regulated domains, and it makes hallucinations easier to audit.</li>
+        </ul>
+        <p>The cost is real: building the graph means running an LLM extraction pass over the corpus, resolving duplicate entities, and maintaining an ontology. Do it when relationship questions are a core use case, not as a default.</p>
+      </div>
+
+      <div class="beat">
+        <h4>The retrieval pattern <span class="q">vector seeds, graph expands</span></h4>
+<pre class="code"><span class="c">// 1. vector search finds seed chunks/entities; 2. expand 2 hops around them</span>
+<span class="k">CALL</span> db.index.vector.queryNodes(<span class="s">'chunk_embedding'</span>, <span class="o">8</span>, $queryVec)
+<span class="k">YIELD</span> node <span class="k">AS</span> chunk, score
+<span class="k">MATCH</span> (chunk)-[:MENTIONS]-&gt;(e:Entity)
+<span class="k">MATCH</span> path = (e)-[*1..2]-(related:Entity)
+<span class="k">WHERE</span> <span class="k">ALL</span>(r <span class="k">IN</span> relationships(path) <span class="k">WHERE</span> r.confidence &gt; <span class="o">0.7</span>)
+<span class="k">RETURN</span> chunk.text, e.name, [r <span class="k">IN</span> relationships(path) | type(r)] <span class="k">AS</span> rels,
+       related.name, score
+<span class="k">ORDER BY</span> score <span class="k">DESC</span> <span class="k">LIMIT</span> <span class="o">40</span>;</pre>
+        <p>Cap the hop depth and filter on edge properties. An unbounded variable-length match through a "super-node" (an entity connected to millions of others) is the classic way to take a graph database down.</p>
+      </div>
+    </div>
+
+    <aside class="signals">
+      <h4>Quick read</h4>
+      <div class="signal" style="--c:var(--purple)"><span class="k">Reach for it when</span><p>The question is "how is A connected to B?" or "what's affected if C changes?"</p></div>
+      <div class="signal" style="--c:var(--green)"><span class="k">Pipeline role</span><p>The knowledge layer behind GraphRAG, entity resolution, lineage and agent world-models.</p></div>
+      <div class="signal" style="--c:var(--pink)"><span class="k">Biggest trap</span><p>Building a graph because it sounds smart, then discovering the extraction pass is the expensive, error-prone part.</p></div>
+      <div class="asks">
+        <h5>Reach for this when they ask</h5>
+        <ul>
+          <li>Why doesn't vector RAG answer multi-hop questions?</li>
+          <li>How would you build and maintain a knowledge graph from documents?</li>
+          <li>Neo4j or Neptune on AWS?</li>
+          <li>Property Graph or RDF?</li>
+        </ul>
+      </div>
+      <div class="asks avoid">
+        <h5>Avoid when</h5>
+        <ul>
+          <li>Your data is tabular and queries are aggregations.</li>
+          <li>There are no meaningful relationships to traverse.</li>
+          <li>Nobody on the team will own the schema and ontology.</li>
+        </ul>
+      </div>
+      <div class="stack"><span>Neo4j</span><span>Neptune</span><span>Cypher</span><span>Gremlin</span><span>SPARQL</span><span>GDS</span><span>Leiden</span><span>GraphRAG</span><span>entity resolution</span></div>
+    </aside>
+  </div>
+</details>
+
+<!-- ============ 3. RELATIONAL ============ -->
+<details class="story" id="relational" data-db="rel" style="--c:var(--d-rel)">
+  <summary>
+    <div class="story-meta"><span>3 · Relational databases</span><span class="era">PostgreSQL · Neon · SQLite · Amazon Aurora</span></div>
+    <h3>The deterministic backbone under a probabilistic system</h3>
+    <span class="toggle"><span class="o">Open</span><span class="c">Close</span></span>
+    <p class="hook">LLMs are non-deterministic, so everything around them should be boring and exact. Users, permissions, billing, audit trails and workflow state belong in a database that enforces constraints and never loses a write.</p>
+    <div class="pr"><div class="prob"><span class="lbl">Problem it solves</span><p>Agents that retry, branch and run in parallel corrupt state unless every update is atomic, isolated and auditable.</p></div><div class="res"><span class="lbl">What you get</span><p>ACID transactions, foreign keys, mature tooling, and with extensions it also does vector, full-text and JSON in one place.</p></div></div>
+  </summary>
+  <div class="story-body">
+    <div class="beats">
+      <div class="beat">
+        <h4>Core paradigm <span class="q">schema, ACID, SQL</span></h4>
+        <p>Data lives in typed tables with enforced constraints (primary and foreign keys, <code>CHECK</code>, uniqueness). Transactions are <strong>atomic, consistent, isolated and durable</strong>, so a multi-step update either fully happens or doesn't. SQL gives you joins, window functions, CTEs and a planner that optimises ad hoc questions you haven't thought of yet. That flexibility at <em>read</em> time is the thing key-value stores give up.</p>
+        <p>Modern Postgres also absorbs neighbouring paradigms: <code>JSONB</code> for semi-structured data, <code>tsvector</code> for full-text search, <code>pgvector</code> for similarity, row-level security for tenant isolation, and logical replication for change data capture into other stores.</p>
+      </div>
+
+      <div class="beat">
+        <h4>Head to head <span class="q">four flavours</span></h4>
+        <div class="h2h-wrap"><table class="h2h">
+          <thead><tr><th></th><th style="--c:var(--yellow)">PostgreSQL</th><th style="--c:var(--yellow)">Amazon Aurora</th><th style="--c:var(--yellow)">Neon</th><th style="--c:var(--yellow)">SQLite</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Shape</th><td>Open-source server</td><td>Managed Postgres / MySQL-compatible, cloud-native storage</td><td>Serverless Postgres, storage and compute separated</td><td>Embedded, file-backed library</td></tr>
+            <tr><th scope="row">Best at</th><td><strong>Extension ecosystem</strong> and full control</td><td><strong>High-throughput enterprise OLTP</strong>, storage that auto-grows, fast replicas, Serverless v2</td><td><strong>Instant branching</strong> and scale-to-zero</td><td><strong>Zero-ops local data</strong>: edge, desktop, mobile, prototypes</td></tr>
+            <tr><th scope="row">AI angle</th><td>pgvector, JSONB, FTS, LangGraph checkpointer</td><td>pgvector plus Bedrock integration, in your existing AWS account</td><td>Copy-on-write branch per agent run, per PR, per test</td><td>FTS5 plus vector extensions (e.g. sqlite-vec) for on-device RAG</td></tr>
+            <tr><th scope="row">Ceiling</th><td>One primary takes writes; scale up first, then shard</td><td>Same single-writer model; Limitless Database for sharding</td><td>Cold starts; fewer knobs than self-managed</td><td>Single writer; not for concurrent multi-user servers</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>Neon's branching</strong> is the standout for agent work. A branch is a copy-on-write fork of the full database in seconds, so an agent can try a risky migration, a bulk update or a generated schema in isolation, and you throw the branch away if it goes wrong. It's the safest way to give an agent a real database. <strong>SQLite</strong> in WAL mode handles many readers and a single writer, which is plenty for a desktop copilot or an edge device.</p>
+      </div>
+
+      <div class="beat">
+        <h4>What belongs here <span class="q">AI use cases</span></h4>
+        <ul class="pts">
+          <li><strong>Application metadata and user profiles</strong>: tenants, roles, preferences, quotas, billing.</li>
+          <li><strong>Authorisation</strong>: the permission model that retrieval must respect, enforced with row-level security.</li>
+          <li><strong>Deterministic agent state</strong>: workflow step, approvals, idempotency keys, job queues (<code>SELECT … FOR UPDATE SKIP LOCKED</code>), and framework checkpointers.</li>
+          <li><strong>Audit and tool-call ledgers</strong>: which model, prompt version, tool and arguments produced which side effect. Append-only, queryable, defensible.</li>
+          <li><strong>Eval results and feedback</strong>: runs, scores, judge verdicts and thumbs-up data you'll join against traces.</li>
+          <li><strong>Document registry</strong>: doc IDs, versions, hashes and ingestion status that the vector store points back to.</li>
+        </ul>
+        <p>The reason it stays the gold standard: a financial transaction, a permission change or an approval can't be "eventually right". Constraints make illegal states unrepresentable, and no prompt can talk its way around a foreign key.</p>
+      </div>
+    </div>
+
+    <aside class="signals">
+      <h4>Quick read</h4>
+      <div class="signal" style="--c:var(--yellow)"><span class="k">Reach for it when</span><p>The question is "what is true right now?" and the answer must be exact.</p></div>
+      <div class="signal" style="--c:var(--green)"><span class="k">Pipeline role</span><p>System of record, permission source for RAG filters, agent checkpoints, audit log and eval store.</p></div>
+      <div class="signal" style="--c:var(--pink)"><span class="k">Biggest trap</span><p>Letting vector search load share a primary with checkout traffic. Index builds and big scans evict hot pages.</p></div>
+      <div class="asks">
+        <h5>Reach for this when they ask</h5>
+        <ul>
+          <li>Where do user permissions live in a RAG system?</li>
+          <li>How do you let an agent change a database safely?</li>
+          <li>Why not put everything in one Postgres?</li>
+          <li>Aurora or Neon, and why?</li>
+        </ul>
+      </div>
+      <div class="asks avoid">
+        <h5>Avoid when</h5>
+        <ul>
+          <li>You need 100M+ vectors under a tight latency SLA.</li>
+          <li>Writes fan out beyond what one primary can take.</li>
+          <li>Data is truly schemaless and arrives faster than you can model it.</li>
+        </ul>
+      </div>
+      <div class="stack"><span>PostgreSQL</span><span>Aurora</span><span>Neon</span><span>SQLite</span><span>JSONB</span><span>RLS</span><span>pgvector</span><span>FTS5</span><span>WAL</span><span>branching</span></div>
+    </aside>
+  </div>
+</details>
+
+<!-- ============ 4. DOCUMENT ============ -->
+<details class="story" id="document" data-db="doc" style="--c:var(--d-doc)">
+  <summary>
+    <div class="story-meta"><span>4 · Document &amp; key-value databases</span><span class="era">MongoDB · Amazon DynamoDB</span></div>
+    <h3>Store what the model said as it was said, at any volume</h3>
+    <span class="toggle"><span class="o">Open</span><span class="c">Close</span></span>
+    <p class="hook">Conversations, tool outputs and raw LLM payloads are nested, irregular and append-heavy. Document and key-value stores take them as they arrive, with no migration, and scale out by adding partitions.</p>
+    <div class="pr"><div class="prob"><span class="lbl">Problem it solves</span><p>Every new prompt format, tool and model changes the shape of what you log. Rigid schemas turn each change into a migration.</p></div><div class="res"><span class="lbl">What you get</span><p>Schema-flexible writes, horizontal scale, and fast reads by key such as <code>session_id</code> or <code>user_id</code>.</p></div></div>
+  </summary>
+  <div class="story-body">
+    <div class="beats">
+      <div class="beat">
+        <h4>Core paradigm <span class="q">flexible documents and key-value access</span></h4>
+        <p>A <strong>document store</strong> keeps JSON-like documents with nested fields and arrays, indexes the fields you choose, and queries inside them. A <strong>key-value store</strong> is simpler and faster: you give a key, you get an item, and every access pattern has to be designed up front around that key. Both shard automatically across nodes by key, which is why they absorb write volume that would strain a single relational primary.</p>
+        <p>The tradeoff is the mirror image of relational: you get write scale and schema freedom, and you give up ad hoc joins and cross-document transactions as a first-class feature.</p>
+      </div>
+
+      <div class="beat">
+        <h4>Head to head <span class="q">MongoDB vs. DynamoDB</span></h4>
+        <div class="h2h-wrap"><table class="h2h">
+          <thead><tr><th></th><th style="--c:var(--green)">MongoDB</th><th style="--c:var(--green)">Amazon DynamoDB</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Model</th><td>Rich document store, nested structures, dynamic schemas</td><td>Serverless key-value / wide-item store</td></tr>
+            <tr><th scope="row">Best at</th><td><strong>Flexible querying</strong>: secondary indexes, aggregation pipeline, text search; Atlas adds vector search</td><td><strong>Predictable single-digit-millisecond access</strong> at any scale, on-demand capacity, zero servers</td></tr>
+            <tr><th scope="row">Access pattern</th><td>Query by many fields, explore data</td><td>Partition key + sort key, plus a few GSIs; designed in advance</td></tr>
+            <tr><th scope="row">Limits to know</th><td>16 MB per document; unbounded arrays hurt; shard-key choice is hard to undo</td><td>400 KB per item; per-partition throughput caps; hot partitions throttle</td></tr>
+            <tr><th scope="row">AI fit</th><td>Conversation history, agent memory, traces, with vector search in the same cluster</td><td>High-volume session state, TTL-expiring memory, event logs, streams into pipelines</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="beat">
+        <h4>Agent memory pattern <span class="q">short-term and long-term</span></h4>
+        <p><strong>Short-term (working) memory</strong> is the current thread: recent turns, tool results, scratchpad. It's keyed by <code>thread_id</code>, read on every step and expired with a TTL. <strong>Long-term memory</strong> is what survives across sessions: user facts, preferences, past outcomes. Store the raw episodes in the document store, then extract durable facts and index them for similarity (vector) or relationships (graph).</p>
+<pre class="code"><span class="c">// DynamoDB single-table design for conversation memory</span>
+PK = <span class="s">"THREAD#&lt;thread_id&gt;"</span>     SK = <span class="s">"MSG#&lt;ulid&gt;"</span>      <span class="c">// time-ordered, range-queryable</span>
+attrs: role, content, tool_calls, model_id, prompt_ver, tokens, ttl
+GSI1: PK = <span class="s">"USER#&lt;user_id&gt;"</span>  SK = <span class="s">"THREAD#&lt;last_active&gt;"</span>   <span class="c">// "my recent chats"</span>
+
+<span class="c">// "load the last 20 turns" = one Query, ScanIndexForward=false, Limit=20</span></pre>
+        <p>Always log <code>model_id</code> and <code>prompt_version</code> with each message. When quality shifts, that's the field that lets you tell a model change from a data change.</p>
+      </div>
+
+      <div class="beat">
+        <h4>What belongs here <span class="q">AI use cases</span></h4>
+        <ul class="pts">
+          <li><strong>Conversation history</strong> and episodic memory, in full fidelity.</li>
+          <li><strong>Raw LLM input and output</strong>: prompts, completions, token counts, latencies and tool traces for replay, evals and fine-tuning data.</li>
+          <li><strong>Unparsed payloads before ingestion</strong>: the landing zone for scraped pages, API responses and uploaded files, so the chunking and embedding pipeline can be re-run from the original.</li>
+          <li><strong>Event and feedback streams</strong>: DynamoDB Streams or change streams trigger downstream indexing.</li>
+        </ul>
+        <p>Large blobs (full PDFs, audio, images) go in object storage such as S3, with a pointer in the document. Keeping the payload out of the item avoids both size limits and cost.</p>
+      </div>
+    </div>
+
+    <aside class="signals">
+      <h4>Quick read</h4>
+      <div class="signal" style="--c:var(--green)"><span class="k">Reach for it when</span><p>The question is "what happened?" and the shape of the answer keeps changing.</p></div>
+      <div class="signal" style="--c:var(--cyan)"><span class="k">Pipeline role</span><p>Memory log, trace store and ingestion landing zone feeding the vector and graph indexes.</p></div>
+      <div class="signal" style="--c:var(--pink)"><span class="k">Biggest trap</span><p>DynamoDB with access patterns you haven't decided. A new query shape later means a new index or a full scan.</p></div>
+      <div class="asks">
+        <h5>Reach for this when they ask</h5>
+        <ul>
+          <li>Where do you store agent conversation memory?</li>
+          <li>How do you keep raw LLM traces for evals?</li>
+          <li>What breaks DynamoDB at scale?</li>
+          <li>MongoDB Atlas vector search or a dedicated vector DB?</li>
+        </ul>
+      </div>
+      <div class="asks avoid">
+        <h5>Avoid when</h5>
+        <ul>
+          <li>You need ad hoc analytics or many-table joins.</li>
+          <li>Strong relational integrity is the point.</li>
+          <li>Semantic retrieval is the primary workload.</li>
+        </ul>
+      </div>
+      <div class="stack"><span>MongoDB</span><span>DynamoDB</span><span>Atlas Vector Search</span><span>TTL</span><span>Streams</span><span>single-table</span><span>GSI</span><span>S3 pointers</span></div>
+    </aside>
+  </div>
+</details>
+
+</div>
+<p class="empty" id="empty">No paradigm matches that search. Clear the filter or try a broader term.</p>
+</main>
+
+<!-- ============ DIAGRAMS ============ -->
+<div class="wrap page-pad" id="architecture">
+  <section class="sec">
+    <h2>How they fit into AI pipelines</h2>
+    <p>Production systems rarely pick one store. Each diagram shows which database owns which job, and what flows between them.</p>
+
+    <figure class="diagram" style="margin-top:0">
+      <div class="matrix-head"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><span class="fname">rag_pipeline.svg</span></div>
+      <div class="diagram-scroll">
+      <svg viewBox="0 0 960 360" role="img" aria-label="RAG pipeline: ingest path from sources through chunking and embedding into a vector database with relational metadata, and query path through hybrid retrieval, reranking and the LLM">
+        <defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" class="arrowhead"/></marker></defs>
+        <text class="lane" x="20" y="30">ingest_path</text>
+        <text class="lane" x="20" y="238">query_path</text>
+
+        <g class="nd" transform="translate(20,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Sources</text><text class="s" x="80" y="41">PDFs · tickets · APIs</text></g>
+        <g class="nd" transform="translate(210,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Parse + chunk</text><text class="s" x="80" y="41">structure-aware</text></g>
+        <g class="nd" transform="translate(400,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Embed</text><text class="s" x="80" y="41">model_id pinned</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(590,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Vector DB</text><text class="s" x="80" y="41">vec + metadata + BM25</text></g>
+        <g class="nd" style="--c:var(--d-rel)" transform="translate(780,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Relational</text><text class="s" x="80" y="41">doc IDs · ACLs · versions</text></g>
+        <g class="nd" style="--c:var(--d-doc)" transform="translate(20,126)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Doc store · S3</text><text class="s" x="80" y="41">raw payload + lineage</text></g>
+
+        <path class="ln" d="M180 71H208" marker-end="url(#a1)"/>
+        <path class="ln" d="M370 71H398" marker-end="url(#a1)"/>
+        <path class="ln" d="M560 71H588" marker-end="url(#a1)"/>
+        <path class="ln" d="M100 98V124" marker-end="url(#a1)"/>
+        <path class="ln dash" style="--c:var(--d-rel)" d="M750 71H778" marker-start="url(#a1)" marker-end="url(#a1)"/>
+        <text class="lbl-s" x="764" y="36" text-anchor="middle">doc_id</text>
+
+        <g class="nd q" transform="translate(20,252)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">User query</text><text class="s" x="80" y="41">+ session / tenant</text></g>
+        <g class="nd" transform="translate(210,252)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Rewrite + embed</text><text class="s" x="80" y="41">same model_id</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(400,252)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Hybrid retrieve</text><text class="s" x="80" y="41">ANN + BM25 + ACL filter</text></g>
+        <g class="nd" transform="translate(590,252)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Rerank</text><text class="s" x="80" y="41">cross-encoder top-k</text></g>
+        <g class="nd" style="--c:var(--orange)" transform="translate(780,252)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">LLM</text><text class="s" x="80" y="41">grounded + cited</text></g>
+
+        <path class="ln" d="M180 279H208" marker-end="url(#a1)"/>
+        <path class="ln" d="M370 279H398" marker-end="url(#a1)"/>
+        <path class="ln" d="M560 279H588" marker-end="url(#a1)"/>
+        <path class="ln" d="M750 279H778" marker-end="url(#a1)"/>
+        <path class="ln dash" style="--c:var(--d-vec)" d="M480 252V205H670V100" marker-end="url(#a1)"/>
+        <text class="lbl-s" x="575" y="198" text-anchor="middle">top-k + filter</text>
+      </svg>
+      </div>
+      <figcaption><strong>Two paths, one contract.</strong> The ingest path keeps the raw payload so the index can be rebuilt, and the relational store owns document identity and permissions. The query path embeds with the same pinned model, filters inside the retrieval call, then reranks before the LLM sees anything.</figcaption>
+    </figure>
+
+    <figure class="diagram">
+      <div class="matrix-head"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><span class="fname">graphrag_flow.svg</span></div>
+      <div class="diagram-scroll">
+      <svg viewBox="0 0 960 330" role="img" aria-label="GraphRAG: build path extracts entities into a graph database and vector index; query path seeds with vector search, expands through the graph and packs context for the LLM">
+        <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" class="arrowhead"/></marker></defs>
+        <text class="lane" x="20" y="30">build_graph</text>
+        <text class="lane" x="20" y="208">answer_question</text>
+
+        <g class="nd" transform="translate(20,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Corpus</text><text class="s" x="80" y="41">docs · tickets · wiki</text></g>
+        <g class="nd" style="--c:var(--orange)" transform="translate(210,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">LLM extraction</text><text class="s" x="80" y="41">entities + relations</text></g>
+        <g class="nd" transform="translate(400,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Resolve + dedupe</text><text class="s" x="80" y="41">canonical entity IDs</text></g>
+        <g class="nd" style="--c:var(--d-graph)" transform="translate(590,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Graph DB</text><text class="s" x="80" y="41">nodes · edges · props</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(780,44)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Vector index</text><text class="s" x="80" y="41">chunk + node embeddings</text></g>
+
+        <path class="ln" d="M180 71H208" marker-end="url(#a2)"/>
+        <path class="ln" d="M370 71H398" marker-end="url(#a2)"/>
+        <path class="ln" d="M560 71H588" marker-end="url(#a2)"/>
+        <path class="ln dash" style="--c:var(--d-graph)" d="M750 71H778" marker-start="url(#a2)" marker-end="url(#a2)"/>
+
+        <g class="nd q" transform="translate(20,222)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Question</text><text class="s" x="80" y="41">multi-hop, entity-centric</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(210,222)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Vector seed</text><text class="s" x="80" y="41">top-k chunks / nodes</text></g>
+        <g class="nd" style="--c:var(--d-graph)" transform="translate(400,222)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Graph expand</text><text class="s" x="80" y="41">k-hop Cypher / SPARQL</text></g>
+        <g class="nd" transform="translate(590,222)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">Context pack</text><text class="s" x="80" y="41">subgraph + chunks + paths</text></g>
+        <g class="nd" style="--c:var(--orange)" transform="translate(780,222)"><rect width="160" height="54" rx="9"/><text class="t" x="80" y="23">LLM</text><text class="s" x="80" y="41">answer + provenance</text></g>
+
+        <path class="ln" d="M180 249H208" marker-end="url(#a2)"/>
+        <path class="ln" d="M370 249H398" marker-end="url(#a2)"/>
+        <path class="ln" d="M560 249H588" marker-end="url(#a2)"/>
+        <path class="ln" d="M750 249H778" marker-end="url(#a2)"/>
+        <path class="ln dash" style="--c:var(--d-vec)" d="M290 222V160H860V100" marker-end="url(#a2)"/>
+        <path class="ln dash" style="--c:var(--d-graph)" d="M480 222V190H670V100" marker-end="url(#a2)"/>
+        <text class="lbl-s" x="410" y="153" text-anchor="middle">1 · find seeds</text>
+        <text class="lbl-s" x="575" y="183" text-anchor="middle">2 · walk edges</text>
+      </svg>
+      </div>
+      <figcaption><strong>Vector finds the doorway, the graph walks the building.</strong> Similarity picks the starting entities; traversal collects the connected facts that no single chunk contained. The LLM receives paths with provenance instead of loosely related paragraphs. In Neo4j and Neptune Analytics the vector index and graph can live in one engine.</figcaption>
+    </figure>
+
+    <figure class="diagram">
+      <div class="matrix-head"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><span class="fname">agent_memory.svg</span></div>
+      <div class="diagram-scroll">
+      <svg viewBox="0 0 960 400" role="img" aria-label="Agent memory architecture: the agent runtime reads and writes relational state, a document log, a vector semantic memory and a graph of entities">
+        <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" class="arrowhead"/></marker></defs>
+
+        <g class="nd" style="--c:var(--orange)" transform="translate(350,160)"><rect width="260" height="80" rx="12"/><text class="t" x="130" y="35" style="font-size:16px">Agent runtime</text><text class="s" x="130" y="55">planner · tools · LLM calls</text></g>
+
+        <g class="nd" style="--c:var(--d-rel)" transform="translate(30,20)"><rect width="270" height="86" rx="12"/><text class="t" x="135" y="28">Relational · working state</text><text class="s" x="135" y="50">checkpoints · approvals · idempotency</text><text class="s" x="135" y="68">user profile · ACLs · audit ledger</text></g>
+        <g class="nd" style="--c:var(--d-doc)" transform="translate(660,20)"><rect width="270" height="86" rx="12"/><text class="t" x="135" y="28">Document / KV · episodic log</text><text class="s" x="135" y="50">transcripts · tool I/O · traces</text><text class="s" x="135" y="68">TTL short-term memory</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(30,294)"><rect width="270" height="86" rx="12"/><text class="t" x="135" y="28">Vector · semantic memory</text><text class="s" x="135" y="50">extracted facts · past solutions</text><text class="s" x="135" y="68">recall by similarity</text></g>
+        <g class="nd" style="--c:var(--d-graph)" transform="translate(660,294)"><rect width="270" height="86" rx="12"/><text class="t" x="135" y="28">Graph · world model</text><text class="s" x="135" y="50">entities · relationships · provenance</text><text class="s" x="135" y="68">multi-hop recall</text></g>
+
+        <path class="ln dash" style="--c:var(--d-rel)" d="M300 80L378 160" marker-start="url(#a3)" marker-end="url(#a3)"/>
+        <path class="ln dash" style="--c:var(--d-doc)" d="M660 80L582 160" marker-start="url(#a3)" marker-end="url(#a3)"/>
+        <path class="ln dash" style="--c:var(--d-vec)" d="M300 320L378 240" marker-start="url(#a3)" marker-end="url(#a3)"/>
+        <path class="ln dash" style="--c:var(--d-graph)" d="M660 320L582 240" marker-start="url(#a3)" marker-end="url(#a3)"/>
+
+        <text class="lbl-s" x="165" y="146" text-anchor="middle">read / write every step</text>
+        <text class="lbl-s" x="795" y="146" text-anchor="middle">append every turn</text>
+        <text class="lbl-s" x="165" y="272" text-anchor="middle">consolidate → recall</text>
+        <text class="lbl-s" x="795" y="272" text-anchor="middle">extract → traverse</text>
+      </svg>
+      </div>
+      <figcaption><strong>Memory is a pipeline, not a table.</strong> Raw turns append to the document log. A background job extracts durable facts into vector memory and relationships into the graph. The relational store holds the exact state the agent must never get wrong. Recall at inference time pulls from whichever tier matches the question.</figcaption>
+    </figure>
+  </section>
+</div>
+
+<!-- ============ DECISION MATRIX ============ -->
+<div class="wrap page-pad" id="matrix">
+  <section class="sec">
+    <h2>Architectural decision matrix</h2>
+    <p>The honest version: what each paradigm is for, what limits it first in production, and when picking it is a mistake. Scroll sideways on a small screen.</p>
+    <div class="dm-wrap">
+      <table class="dm">
+        <thead>
+          <tr>
+            <th scope="col">Database paradigm</th>
+            <th scope="col">Core strength</th>
+            <th scope="col">Primary AI workload</th>
+            <th scope="col">Query type / mechanics</th>
+            <th scope="col">Maximum scaling bottleneck</th>
+            <th scope="col">When to avoid</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="--c:var(--d-vec)">
+            <th scope="row">Vector<small>Pinecone · Weaviate · pgvector</small></th>
+            <td><strong>Semantic similarity</strong> over high-dimensional embeddings in milliseconds, with metadata filtering.</td>
+            <td>RAG retrieval, semantic agent memory, recommendations, deduplication, multimodal search.</td>
+            <td>ANN kNN (HNSW, IVF, DiskANN) by cosine, dot or L2, plus metadata filters and hybrid BM25 fusion. No joins.</td>
+            <td><strong>RAM.</strong> HNSW wants the graph in memory, so cost scales with vector count × dimensions. Filtered-search recall degrades with selective filters. Changing the embedding model means re-embedding everything.</td>
+            <td class="avoid">Exact lookups, transactions or joins as the main pattern. Using it as the source of truth. Corpora small enough for brute force. Teams with no relevance-evaluation process.</td>
+          </tr>
+          <tr style="--c:var(--d-graph)">
+            <th scope="row">Graph<small>Neo4j · Amazon Neptune</small></th>
+            <td><strong>Relationship traversal</strong> and explainable, multi-hop context.</td>
+            <td>GraphRAG, knowledge graphs, entity resolution, fraud and lineage, agent world models.</td>
+            <td>Pattern matching and traversal in Cypher, Gremlin or SPARQL; graph algorithms (PageRank, Leiden, similarity); optional vector index.</td>
+            <td><strong>Super-nodes and write sharding.</strong> Dense hubs blow up traversals, and partitioning a connected graph across machines is fundamentally hard. Upstream, LLM extraction cost and entity-resolution quality set the ceiling.</td>
+            <td class="avoid">Tabular data and aggregation-heavy analytics. No real relationships to model. High-volume simple key lookups. No one to own the ontology.</td>
+          </tr>
+          <tr style="--c:var(--d-rel)">
+            <th scope="row">Relational<small>PostgreSQL · Aurora · Neon · SQLite</small></th>
+            <td><strong>Correctness.</strong> ACID, constraints, joins and the broadest tooling.</td>
+            <td>Metadata, profiles, permissions, audit logs, agent checkpoints, eval results, and moderate-scale pgvector.</td>
+            <td>SQL with joins, window functions and CTEs; JSONB, full-text, and ANN via pgvector. Row-level security.</td>
+            <td><strong>The single writer.</strong> One primary takes all writes, so you scale up, then add read replicas, then shard. For pgvector, index builds and memory pressure compete with OLTP.</td>
+            <td class="avoid">100M+ vectors under tight latency SLAs. Write fan-out beyond one primary. Free-form payloads whose shape changes weekly. SQLite for concurrent multi-user servers.</td>
+          </tr>
+          <tr style="--c:var(--d-doc)">
+            <th scope="row">Document<small>MongoDB</small></th>
+            <td><strong>Schema flexibility with real query power.</strong> Nested JSON stored and indexed as-is.</td>
+            <td>Conversation history, episodic agent memory, raw LLM I/O traces, pre-ingestion payloads; Atlas Vector Search for modest-scale retrieval.</td>
+            <td>Rich queries on any indexed field, aggregation pipeline, text search, change streams. Joins are limited (<code>$lookup</code>).</td>
+            <td><strong>Shard key and document shape.</strong> A bad shard key creates hot shards that are painful to undo; 16 MB documents and ever-growing arrays degrade performance long before the limit.</td>
+            <td class="avoid">Cross-collection integrity as a core requirement. Heavy relational analytics. Using it as your only retrieval engine at large vector scale.</td>
+          </tr>
+          <tr style="--c:var(--d-doc)">
+            <th scope="row">Key-Value<small>Amazon DynamoDB</small></th>
+            <td><strong>Predictable single-digit-millisecond access</strong> and effectively unlimited write throughput, with no servers.</td>
+            <td>High-volume session and thread state, TTL-expiring short-term memory, event logs, idempotency and rate-limit counters.</td>
+            <td>Partition key + sort key reads and writes, plus a few GSIs. Access patterns are designed up front; scans are the escape hatch you don't want.</td>
+            <td><strong>Hot partitions and rigid access patterns.</strong> 400 KB item limit and per-partition throughput caps; a skewed key throttles you even when the table has spare capacity.</td>
+            <td class="avoid">Ad hoc or exploratory queries. Many-table joins. Any case where you can't name your queries in advance. Semantic retrieval.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <figure class="diagram" style="margin-top:24px">
+      <div class="matrix-head"><i style="background:var(--pink)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><span class="fname">which_database.svg</span></div>
+      <div class="diagram-scroll">
+      <svg viewBox="0 0 960 490" role="img" aria-label="Decision flow: transactions or joins lead to relational; relationship questions lead to graph; similarity at scale leads to a vector database or pgvector; flexible, write-heavy key access leads to a document store">
+        <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L9 5L0 9z" class="arrowhead"/></marker></defs>
+
+        <g class="nd q" transform="translate(20,20)"><rect width="270" height="64" rx="10"/><text class="t" x="135" y="28">Need transactions,</text><text class="t" x="135" y="47">joins or exact answers?</text></g>
+        <g class="nd q" transform="translate(20,122)"><rect width="270" height="64" rx="10"/><text class="t" x="135" y="28">Does the answer depend on</text><text class="t" x="135" y="47">multi-hop relationships?</text></g>
+        <g class="nd q" transform="translate(20,224)"><rect width="270" height="64" rx="10"/><text class="t" x="135" y="28">Is it semantic similarity</text><text class="t" x="135" y="47">retrieval?</text></g>
+        <g class="nd q" transform="translate(20,346)"><rect width="270" height="64" rx="10"/><text class="t" x="135" y="28">Flexible JSON, write-heavy,</text><text class="t" x="135" y="47">access by key?</text></g>
+        <g class="nd q" transform="translate(350,224)"><rect width="270" height="64" rx="10"/><text class="t" x="135" y="21">100M+ vectors, tight p99,</text><text class="t" x="135" y="40">or zero-ops wanted?</text><text class="s" x="135" y="56">rules of thumb · benchmark yours</text></g>
+
+        <g class="nd" style="--c:var(--d-rel)" transform="translate(680,20)"><rect width="260" height="64" rx="10"/><text class="t" x="130" y="28">Relational</text><text class="s" x="130" y="47">Postgres / Aurora · add pgvector</text></g>
+        <g class="nd" style="--c:var(--d-graph)" transform="translate(680,122)"><rect width="260" height="64" rx="10"/><text class="t" x="130" y="28">Graph</text><text class="s" x="130" y="47">Neo4j / Neptune · GraphRAG</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(680,200)"><rect width="260" height="50" rx="10"/><text class="t" x="130" y="22">Pure-play vector DB</text><text class="s" x="130" y="39">Pinecone / Weaviate</text></g>
+        <g class="nd" style="--c:var(--d-vec)" transform="translate(680,262)"><rect width="260" height="50" rx="10"/><text class="t" x="130" y="22">pgvector</text><text class="s" x="130" y="39">same DB as your app data</text></g>
+        <g class="nd" style="--c:var(--d-doc)" transform="translate(680,346)"><rect width="260" height="64" rx="10"/><text class="t" x="130" y="28">Document / KV</text><text class="s" x="130" y="47">MongoDB / DynamoDB</text></g>
+        <g class="nd" style="--c:var(--d-rel)" transform="translate(20,436)"><rect width="270" height="44" rx="10"/><text class="t" x="135" y="27">Default: PostgreSQL</text></g>
+
+        <path class="ln" d="M290 52H678" marker-end="url(#a4)"/><text class="lbl-y" x="484" y="45">yes</text>
+        <path class="ln" d="M155 84V120" marker-end="url(#a4)"/><text class="lbl-n" x="172" y="107">no</text>
+        <path class="ln" d="M290 154H678" marker-end="url(#a4)"/><text class="lbl-y" x="484" y="147">yes</text>
+        <path class="ln" d="M155 186V222" marker-end="url(#a4)"/><text class="lbl-n" x="172" y="209">no</text>
+        <path class="ln" d="M290 256H348" marker-end="url(#a4)"/><text class="lbl-y" x="319" y="249">yes</text>
+        <path class="ln" d="M155 288V344" marker-end="url(#a4)"/><text class="lbl-n" x="172" y="320">no</text>
+        <path class="ln" d="M620 256H650V225H678" marker-end="url(#a4)"/><text class="lbl-y" x="640" y="217">yes</text>
+        <path class="ln" d="M650 256V287H678" marker-end="url(#a4)"/><text class="lbl-n" x="670" y="306">no</text>
+        <path class="ln" d="M290 378H678" marker-end="url(#a4)"/><text class="lbl-y" x="484" y="371">yes</text>
+        <path class="ln" d="M155 410V434" marker-end="url(#a4)"/><text class="lbl-n" x="172" y="427">no</text>
+      </svg>
+      </div>
+      <figcaption><strong>Read it top to bottom.</strong> The first "yes" wins. Most teams exit at relational and use pgvector for similarity; the dedicated vector database is a deliberate step up for scale or SLA, not a starting point.</figcaption>
+    </figure>
+  </section>
+</div>
+
+<!-- ============ OPS ============ -->
+<div class="wrap page-pad" id="ops">
+  <section class="sec">
+    <h2>Production pitfalls that decide the choice</h2>
+    <p>These are the issues that show up after launch. Check them before you commit to a store.</p>
+    <div class="ops">
+      <div class="pillar" style="--c:var(--cyan)"><b>Embedding drift</b><span>Store <code>embed_model</code> and version per row. Upgrading models means re-embedding the corpus and swapping indexes behind an alias, so keep the raw text. Mixing vectors from two models in one index silently wrecks recall.</span></div>
+      <div class="pillar" style="--c:var(--pink)"><b>Permission leaks</b><span>Enforce tenant and ACL filters inside the retrieval query (namespaces, RLS, metadata filters). Never rely on the LLM or on post-filtering to hide documents.</span></div>
+      <div class="pillar" style="--c:var(--yellow)"><b>Dual-write inconsistency</b><span>Writing to Postgres and a vector store separately will drift. Use an outbox table or change data capture so the index is derived from the record, and run a periodic reconciliation job.</span></div>
+      <div class="pillar" style="--c:var(--purple)"><b>Graph blow-ups</b><span>Bound hop depth, filter on edge properties and handle super-nodes explicitly. Version your extraction prompt, because a changed prompt creates a differently shaped graph.</span></div>
+      <div class="pillar" style="--c:var(--green)"><b>Unbounded memory growth</b><span>Put TTLs on short-term memory, summarise old turns, and consolidate episodes into facts. Raw logs grow forever; recall quality drops when you retrieve from all of them.</span></div>
+      <div class="pillar" style="--c:var(--orange)"><b>Evaluating retrieval</b><span>Measure recall@k and MRR on a labelled set before tuning the LLM. Most bad answers are retrieval failures. Re-run the set whenever you change chunking, embeddings, index parameters or the database.</span></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Databases for AI Engineering · <a href="https://mleg.tech" target="_blank" rel="noopener">mleg.tech</a></span>
+    <span>Limits and plan details change. <span class="est">verify</span> against current vendor docs before committing.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.story'));
+  var q = document.getElementById('q');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var expandBtn = document.getElementById('expandBtn');
+  var empty = document.getElementById('empty');
+  var texts = cards.map(function (c) { return c.textContent.toLowerCase(); });
+  var allOpen = false;
+
+  function apply() {
+    var term = q.value.trim().toLowerCase();
+    var active = chips.filter(function (c) { return c.getAttribute('aria-pressed') === 'true'; })
+                      .map(function (c) { return c.dataset.db; });
+    var shown = 0;
+    cards.forEach(function (card, i) {
+      var okDb = !active.length || active.indexOf(card.dataset.db) !== -1;
+      var okTxt = !term || texts[i].indexOf(term) !== -1;
+      var show = okDb && okTxt;
+      card.style.display = show ? '' : 'none';
+      if (show) { shown++; if (term) card.open = true; }
+    });
+    empty.style.display = shown ? 'none' : 'block';
+  }
+
+  q.addEventListener('input', apply);
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      apply();
+    });
+  });
+  expandBtn.addEventListener('click', function () {
+    allOpen = !allOpen;
+    cards.forEach(function (c) { c.open = allOpen; });
+    expandBtn.textContent = allOpen ? 'Collapse all' : 'Expand all';
+  });
+  if (location.hash) {
+    var t = document.querySelector(location.hash);
+    if (t && t.tagName === 'DETAILS') t.open = true;
+  }
+})();
+</script>
+</body>
+</html>
